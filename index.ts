@@ -2,12 +2,12 @@ import * as AWS from 'aws-sdk';
 import { Context }  from 'aws-lambda';
 import * as Knex from 'knex';
 AWS.config.update({ region: 'us-east-1' });
+import jwt from 'jsonwebtoken';
 
-
-const host = '10fecc69c7aa'
-const user = 'usuario'
-const password = 'q1w2e3r4'
-const database = 'lanchonete'
+const host = process.env.DB_HOST;
+const user = process.env.DB_USER;
+const password = process.env.DB_PASSWORD;
+const database = process.env.DB_DATABASE;
 
 const connection = {
     ssl: {rejectUnauthorized: false},
@@ -22,11 +22,18 @@ const knex = Knex({
     connection,
 });
 let count = 0;
-export const handler = async function (event: any, context: Context) { 
-  try{
-      const res = await knex({a: 'costumer'}).select({cpf: "a.cpf"}).whereRaw(event)
-  }catch(err){
-      console.log(err);
-  }
+export const handler = async function (event: any, context: Context) {
+    const { cpf } = JSON.parse(event.body);
+    try {
+        const res = await knex('costumer').select('cpf').where({ cpf });
+        if (res.length > 0) {
+            const token = jwt.sign({ cpf }, 'secret', { expiresIn: '1h' }); // Substitua 'segredo' pela sua chave secreta
+            return { statusCode: 200, body: JSON.stringify({ token }) };
+        } else {
+            return { statusCode: 404, body: JSON.stringify({ message: 'CPF não encontrado' }) };
+        }
+    } catch (err) {
+        console.log(err);
+        return { statusCode: 500, body: JSON.stringify({ message: 'Erro interno' }) };
+    }
 };
-
