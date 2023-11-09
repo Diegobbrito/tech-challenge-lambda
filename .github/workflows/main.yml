@@ -14,9 +14,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Deploy to Lambda
-        uses: appleboy/lambda-action@v2
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
-          function_name: lanchonete-lambda
+        run: |
+          aws lambda update-function-code --function-name lanchonete-lambda --zip-file fileb://lambda.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
