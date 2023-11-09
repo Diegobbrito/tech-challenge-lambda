@@ -8,6 +8,7 @@ const host = process.env.DB_HOST;
 const user = process.env.DB_USER;
 const password = process.env.DB_PASSWORD;
 const database = process.env.DB_DATABASE;
+const secret = process.env.SECRET;
 
 const connection = {
     ssl: {rejectUnauthorized: false},
@@ -27,7 +28,7 @@ export const handler = async function (event: any, context: Context) {
     try {
         const res = await knex('costumer').select('cpf').where({ cpf });
         if (res.length > 0) {
-            const token = jwt.sign({ cpf }, 'secret', { expiresIn: '1h' }); // Substitua 'segredo' pela sua chave secreta
+            const token = jwt.sign({ cpf }, secret, { expiresIn: '1h' });
             return { statusCode: 200, body: JSON.stringify({ token }) };
         } else {
             return { statusCode: 404, body: JSON.stringify({ message: 'CPF não encontrado' }) };
