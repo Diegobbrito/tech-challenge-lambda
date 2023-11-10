@@ -4,8 +4,6 @@
 
 Este repositório contém código e configurações para criar uma infraestrutura no Amazon utilizando Terraform.
 
-## Modelagem de Dados
-
 ## Estrutura do Projeto
 
 - `/terraform`: Contém os arquivos de configuração do Terraform para criar a infraestrutura na AWS.
