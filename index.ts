@@ -8,6 +8,8 @@ const pool = mysql.createPool({
     database: process.env.DB_DATABASE,
 });
 
+const secret = process.env.SECRET
+
 exports.handler = async (event) => {
     const cpf = event.queryStringParameters.cpf;
 
@@ -17,7 +19,7 @@ exports.handler = async (event) => {
                 reject(error);
             } else {
                 if (results.length > 0) {
-                    const token = jwt.sign({ cpf }, 'seu-segredo-do-jwt', { expiresIn: '1h' });
+                    const token = jwt.sign({ cpf }, secret, { expiresIn: '1h' });
                     resolve({
                         statusCode: 200,
                         body: JSON.stringify({ token }),
