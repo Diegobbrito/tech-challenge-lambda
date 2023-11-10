@@ -1,0 +1,13 @@
+service: lambda-cpf-check
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  cpfCheck:
+    handler: handler.handler
+    events:
+      - http:
+          path: /cpf-check
+          method: get
