@@ -11,3 +11,11 @@ functions:
       - http:
           path: /cpf-check
           method: get
+
+custom:
+  database:
+    host: ${env:DB_HOST}
+    user: ${env:DB_USER}
+    password: ${env:DB_PASSWORD}
+    database: ${env:DB_DATABASE}
+  secret: ${env:SECRET}
