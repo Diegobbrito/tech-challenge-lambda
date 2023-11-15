@@ -41,9 +41,9 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: terraform
         env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SECRET: ${{ secrets.SECRET }}
+          TF_VAR_DB_HOST: ${{ secrets.DB_HOST }}
+          TF_VAR_DB_USER: ${{ secrets.DB_USER }}
+          TF_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_SECRET: ${{ secrets.SECRET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -17,7 +17,7 @@ resource "aws_lambda_function" "lanchonete_lambda" {
       DB_USER     = var.db_user,
       DB_PASSWORD = var.db_password,
       DB_NAME     = var.db_name,
-      SECRET = var.secret
+      SECRET      = var.secret
     }
   }
 }
