@@ -13,11 +13,11 @@ resource "aws_lambda_function" "lanchonete_lambda" {
 
   environment {
     variables = {
-      DB_HOST     = var.db_host,
-      DB_USER     = var.db_user,
-      DB_PASSWORD = var.db_password,
+      DB_HOST     = var.DB_HOST,
+      DB_USER     = var.DB_USER,
+      DB_PASSWORD = var.DB_PASSWORD,
       DB_NAME     = var.db_name,
-      SECRET      = var.secret
+      SECRET      = var.SECRET
     }
   }
 }
