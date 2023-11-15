@@ -1,23 +1,17 @@
-variable "db_host" {
+variable "DB_HOST" {
   description = "Database host"
-  default     = ""
 }
+variable "DB_USER" {
+  description = "Database User name"
+}
+variable "DB_PASSWORD" {
+  description = "Database password"
+}
+variable "SECRET" {
+  description = "Jwt secret"
+}
+
 variable "db_name" {
   description = "Database name"
   default     = "lanchonete"
-}
-
-variable "db_user" {
-  description = "Database User name"
-  default     = ""
-}
-
-variable "db_password" {
-  description = "Database password"
-  default     = ""
-}
-
-variable "secret" {
-  description = "Jwt secret"
-  default     = ""
 }

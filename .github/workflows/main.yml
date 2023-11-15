@@ -18,7 +18,7 @@ jobs:
 
       - name: Package Lambda Function
         run: |
-          cp lambda.py package/
+          cp lanchonete-lambda.py package/
           cd package
           zip -r function.zip .
           mv function.zip ../terraform/
@@ -36,6 +36,10 @@ jobs:
         working-directory: terraform
         run: terraform apply -auto-approve
         env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SECRET: ${{ secrets.SECRET }}
           TF_VAR_DB_HOST: ${{ secrets.DB_HOST }}
           TF_VAR_DB_USER: ${{ secrets.DB_USER }}
           TF_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
