@@ -20,6 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          mkdir package
           pip install pymysql pyjwt -t package
 
       - name: Zip Deployment Package

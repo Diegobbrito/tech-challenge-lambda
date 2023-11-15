@@ -9,7 +9,7 @@ resource "aws_lambda_function" "lanchonete_lambda" {
   filename      = "function.zip"
   role          = aws_iam_role.lambda_execution_role.arn
 
-  source_code_hash = filebase64("package/function.zip")
+  source_code_hash = filebase64("../package/function.zip")
 
   environment {
     variables = {
