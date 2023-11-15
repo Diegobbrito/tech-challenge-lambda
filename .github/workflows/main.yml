@@ -38,7 +38,7 @@ jobs:
         working-directory: terraform
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve -var-file=terraform.tfvars
+        run: terraform apply -auto-approve -var="db_host=${{ secrets.DB_HOST }}" -var="db_user=${{ secrets.DB_USER }}" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="secret=${{ secrets.SECRET }}"
         working-directory: terraform
         env:
           TF_VAR_DB_HOST: ${{ secrets.DB_HOST }}
