@@ -1,4 +1,4 @@
-name: Deploy Lambda and API Gateway
+name: Deploy Lambda Function
 
 on:
   push:
@@ -20,11 +20,11 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          mkdir package
           pip install pymysql pyjwt -t package
 
-      - name: Zip Deployment Package
+      - name: Package Lambda Function
         run: |
+          cp lambda.py package/
           cd package
           zip -r ../function.zip .
           cd ..
@@ -35,12 +35,12 @@ jobs:
           terraform_version: 1.0.0
 
       - name: Initialize Terraform
-        run: terraform init
         working-directory: terraform
+        run: terraform init
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve -var="db_host=${{ secrets.DB_HOST }}" -var="db_user=${{ secrets.DB_USER }}" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="secret=${{ secrets.SECRET }}"
         working-directory: terraform
+        run: terraform apply -auto-approve
         env:
           TF_VAR_DB_HOST: ${{ secrets.DB_HOST }}
           TF_VAR_DB_USER: ${{ secrets.DB_USER }}
