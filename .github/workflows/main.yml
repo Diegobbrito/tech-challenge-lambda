@@ -13,22 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install Dependencies
-        run: |
-          pip install pymysql pyjwt -t package
-
-      - name: Package Lambda Function
-        run: |
-          cp lambda.py package/
-          cd package
-          zip -r ../function.zip .
-          cd ..
-
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
