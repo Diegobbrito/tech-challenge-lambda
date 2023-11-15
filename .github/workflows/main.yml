@@ -21,7 +21,6 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install pymysql pyjwt -t package
-        working-directory: tech-challange-lambda
 
       - name: Package Lambda Function
         run: |
