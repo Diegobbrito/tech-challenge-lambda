@@ -1,18 +1,19 @@
 variable "db_host" {
-  description = "password, provide through your ENV variables"
-  default = ""
+  description = "Database host"
 }
 variable "db_name" {
+  description = "Database name"
   default     = "lanchonete"
-  description = "db name"
 }
 
 variable "db_user" {
-  description = "User name"
-  default     = ""
+  description = "Database User name"
 }
 
 variable "db_password" {
-  description = "password, provide through your ENV variables"
-  default = ""
+  description = "Database password"
+}
+
+variable "secret" {
+  description = "Jwt secret"
 }

@@ -2,124 +2,78 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Cria a função Lambda
-resource "aws_lambda_function" "my_lambda_function" {
-  function_name = "lambda-function"
-  handler = "index.handler"
-  role = aws_iam_role.lambda_role.arn
-  runtime = "nodejs14.x"
-  filename = "./lambda.zip"
-  source_code_hash = filebase64sha256("./lambda.zip")
+resource "aws_lambda_function" "lanchonete_lambda" {
+  function_name = "lanchonete-lambda"
+  runtime       = "python3.8"
+  handler       = "lanchonete-lambda.lambda_handler"
+  filename      = "function.zip"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  source_code_hash = filebase64("package/function.zip")
+
   environment {
     variables = {
-      DB_HOST     =  "${var.db_host}"
-      DB_USER     =  "${var.db_user}"
-      DB_PASSWORD =  "${var.db_password}"
-      DB_DATABASE =  "${var.db_name}"
+      DB_HOST     = var.db_host,
+      DB_USER     = var.db_user,
+      DB_PASSWORD = var.db_password,
+      DB_NAME     = var.db_name,
+      SECRET = var.secret
     }
   }
 }
 
-#Role IAM para a função Lambda
-resource "aws_iam_role" "lambda_role" {
-  name = "lambda-execution-role"
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "lambda.amazonaws.com"
       }
-    ]
-  })
-
-  #Política para permitir que a função Lambda envie logs para o CloudWatch
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Effect = "Allow",
-        Resource = "*"
-      }
-    ]
+    }]
   })
 }
 
-#Política para permitir que a função Lambda acesse o RDS
-resource "aws_iam_policy" "lambda_rds_policy" {
-  name = "lambda-rds-policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "rds-db:connect"
-        ],
-        Effect = "Allow",
-        Resource = "*"
-      }
-    ]
-  })
+resource "aws_api_gateway_rest_api" "api_gateway" {
+  name        = "lanchonete_api_gateway"
+  description = "API Gateway para gerar token jwt"
 }
 
-# Anexa a política à role da função Lambda
-resource "aws_iam_role_policy_attachment" "lambda_rds_policy_attachment" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_rds_policy.arn
+resource "aws_api_gateway_resource" "api_gateway_resource" {
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
+  path_part   = "authentication"
 }
 
-# Cria um API Gateway
-resource "aws_api_gateway_rest_api" "api" {
-  name        = "lanchonete-api"
-  description = "API Gateway"
-}
-
-# Cria um recurso no API Gateway
-resource "aws_api_gateway_resource" "resource" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-  path_part   = "lanchonete-resource"
-}
-
-# Cria um método no API Gateway
-resource "aws_api_gateway_method" "my_method" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.resource.id
+resource "aws_api_gateway_method" "api_gateway_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  resource_id   = aws_api_gateway_resource.api_gateway_resource.id
   http_method   = "POST"
   authorization = "NONE"
+
+  request_parameters = {
+    "method.request.header.Content-Type" = true,
+  }
+
+  request_models = {
+    "application/json" = "Empty",
+  }
 }
 
-# Conecta o método à função Lambda
-resource "aws_lambda_permission" "my_lambda_permission" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.my_lambda_function.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.resource.path}"
+resource "aws_api_gateway_integration" "api_gateway_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
+  resource_id             = aws_api_gateway_resource.api_gateway_resource.id
+  http_method             = aws_api_gateway_method.api_gateway_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri = aws_lambda_function.lanchonete_lambda.invoke_arn
 }
 
-# Associa a integração ao método
-resource "aws_api_gateway_integration" "my_integration" {
-  rest_api_id          = aws_api_gateway_rest_api.api.id
-  resource_id          = aws_api_gateway_resource.resource.id
-  http_method          = aws_api_gateway_method.my_method.http_method
-  type                 = "AWS_PROXY"
-  uri                  = aws_lambda_function.my_lambda_function.invoke_arn
-  integration_http_method = "POST" # ou o método de sua escolha
-}
-
-# Deploy da API Gateway
-resource "aws_api_gateway_deployment" "my_deployment" {
-  depends_on    = [aws_api_gateway_integration.my_integration]
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  stage_name    = "dev"
+resource "aws_api_gateway_deployment" "api_gateway_deployment" {
+  depends_on = [aws_api_gateway_integration.api_gateway_integration]
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  stage_name  = "dev"
 }
