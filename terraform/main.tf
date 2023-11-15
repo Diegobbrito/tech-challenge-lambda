@@ -9,7 +9,7 @@ resource "aws_lambda_function" "lanchonete_lambda" {
   filename      = "function.zip"
   role          = aws_iam_role.lambda_execution_role.arn
 
-  source_code_hash = filebase64("${path.module}/../package/function.zip")
+  source_code_hash = filebase64("./function.zip")
 
   environment {
     variables = {
@@ -23,7 +23,7 @@ resource "aws_lambda_function" "lanchonete_lambda" {
 }
 
 resource "aws_iam_role" "lambda_execution_role" {
-  name = "lambda_execution_role"
+  name = "lambda_lanchonete_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
