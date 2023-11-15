@@ -21,6 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install pymysql pyjwt -t package
+        working-directory: tech-challenge-lambda
 
       - name: Package Lambda Function
         run: |
@@ -28,7 +29,7 @@ jobs:
           cd package
           zip -r ../function.zip .
           cd ..
-        working-directory: tech-challange-lambda
+        working-directory: tech-challenge-lambda
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
