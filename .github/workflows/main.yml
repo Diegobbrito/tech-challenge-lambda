@@ -26,7 +26,6 @@ jobs:
         run: |
           cp lambda.py package/
           cd package
-          pwd
           zip -r ../function.zip .
           cd ..
 
